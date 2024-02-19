@@ -52,4 +52,21 @@ jobs:
         run: |
           sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
 
-  
+  Semgrep:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    container:
+      image: returntocorp/semgrep
+
+    if: (github.actor != 'dependabot[bot]')
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: semgrep ci --sarif --output=semgrep.sarif
+        env:
+          SEMGREP_RULES: p/c
+      - name: Upload SARIF file for GitHub Advanced Security Dashboard
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
