@@ -26,7 +26,7 @@ jobs:
 
     - name: Custom build
       run: |
-        g++ -g -std=c++17 -o fileserver main/main.cpp -lssl -lcrypto
+        g++ -g -std=c++17 -o fileserver main.cpp -lssl -lcrypto -I ./
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
@@ -44,7 +44,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} g++ -g -std=c++17 -o fileserver main/main.cpp -lssl -lcrypto
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} g++ -g -std=c++17 -o fileserver main.cpp -lssl -lcrypto -I ./
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
