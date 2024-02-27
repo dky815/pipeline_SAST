@@ -15,22 +15,22 @@ endif()
 set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     encryption
-    file_operations
+    features
     helpers
-    user_management
+    authentication
     )
 
 set(HEADERS
     encryption/encryption.h
     encryption/randomizer_function.h
     
-    file_operations/user_features.h
-    file_operations/user_features_helpers.h
+    features/features.h
+    features/features_helpers.h
     
     helpers/helper_functions.h
     helpers/json.hpp
     
-    user_management/user_management.h
+    authentication/authentication.h
     )
 
 add_executable(${PROJECT_NAME} main.cpp ${HEADERS})

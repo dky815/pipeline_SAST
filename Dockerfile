@@ -8,8 +8,8 @@ WORKDIR /root/bibifi
 
 COPY main.cpp .
 COPY encryption ./encryption
-COPY file_operations ./file_operations
+COPY features ./features
 COPY helpers ./helpers
-COPY user_management ./user_management
+COPY authentication ./authentication
 
 RUN g++ -std=c++17 main.cpp -o fileserver -lssl -lcrypto -I /root/bibifi

@@ -32,8 +32,8 @@ std::string FilenameRandomizer::GenerateRandomString(int length) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static const char alphanum[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
 
     std::uniform_int_distribution<> distr(0, sizeof(alphanum) - 2);
 

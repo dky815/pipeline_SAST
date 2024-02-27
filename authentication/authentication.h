@@ -1,8 +1,10 @@
-#ifndef FILESERVER_USER_MANAGEMENT_H
-#define FILESERVER_USER_MANAGEMENT_H
+/*
+* Authentication: Takes care of user authentication and access control.
+*/
 
-#include "encryption/encryption.h"
-#include "helpers/helper_functions.h"
+#ifndef AUTHENTICATION_H
+#define AUTHENTICATION_H
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -10,7 +12,13 @@
 #include <regex>
 #include <string>
 
-enum UserType { admin, user };
+#include "encryption/encryption.h"
+#include "helpers/helper_functions.h"
+
+enum UserType {
+    admin = 0,
+    user = 1
+};
 
 /// Add a user to the system
 /// \param userName     The username to add
@@ -60,7 +68,7 @@ void addUser(const std::string& userName, std::string directory, bool isAdmin= f
         std::cout << "Failed to create user metadata key file" << std::endl;
         return;
     }
-    
+
     // Create 256-bit key
     uint8_t key[KEY_SIZE];
     RAND_bytes(key, KEY_SIZE);
@@ -143,4 +151,4 @@ std::string getTypeOfUser(const std::string& keyFileName)
     exit(EXIT_FAILURE); // Consider throwing an exception instead of exiting
 }
 
-#endif
+#endif // AUTHENTICATION_H

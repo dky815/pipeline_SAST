@@ -1,5 +1,9 @@
-#ifndef USER_FEATURES_HELPERS_H
-#define USER_FEATURES_HELPERS_H
+/*
+* Helper functions needed for file operations/features.
+*/
+
+#ifndef FEATURES_HELPERS_H
+#define FEATURES_HELPERS_H
 
 #include <cstdlib>
 #include <iostream>
@@ -10,9 +14,9 @@
 #include <fstream>
 #include <vector>
 
-#include "helpers/helper_functions.h"
-#include "user_management/user_management.h"
 #include "encryption/randomizer_function.h"
+#include "authentication/authentication.h"
+#include "helpers/helper_functions.h"
 
 namespace fs = std::filesystem;
 
@@ -101,7 +105,7 @@ void checkIfShared(std::string randomizedFilename, std::string filesystemPath, s
     std::ifstream file(filepath);
     std::vector<std::string> keys, usernames;
     parseFileContents(file, keys, usernames);
-    file.close(); // Ensure file is closed after reading
+    file.close();
 
     updateSharedFiles(keys, usernames, randomizedFilename, filesystemPath, content);
   }
@@ -160,13 +164,10 @@ bool isFileSharedWithUser(std::string filename, std::string filesystemPath, std:
             }
         }
     }
-
-    // Additionally, check if the specific file exists and matches the shared username and value
     if (checkSpecificFile(filepath, sharedUsername, valueToCheck)) {
         return true;
     }
-
-    return false; // Return false if no matching shared file is found
+    return false;
 }
 
 std::string getEncFilename(std::string inputFilename, std::string inputPath, std::string filesystemPath, bool isMkdir) {
@@ -199,7 +200,7 @@ std::string getEncFilename(std::string inputFilename, std::string inputPath, std
 void createAndEncryptFile(std::string filename, std::string contents, std::vector<uint8_t> key, std::string filesystemPath, std::string username) {
   // Ensure the operation is within the user's personal directory
   if (!checkIfPersonalDirectory(username, getCustomPWD(filesystemPath), filesystemPath)) {
-    std::cout << "Forbidden " << std::endl; // Operation is not allowed if outside personal directory
+    std::cout << "Forbidden " << std::endl;
     return;
   }
 
@@ -268,45 +269,38 @@ std::string decryptFilePath(std::string path, const std::string& filesystemPath)
     for (const auto& name : decryptedFilenames) {
         decryptedFilePath += name + "/";
     }
-    decryptedFilePath.pop_back(); // Remove the trailing "/"
+    decryptedFilePath.pop_back();
 
     return decryptedFilePath;
 }
 
 // Encrypts and constructs the file path by randomizing each component.
 std::string getEncryptedFilePath(std::string path, std::string filesystemPath) {
-    // Return the path unchanged if it's a current directory or immediate directory symbol.
     if (path == "." || path == "./") {
         return path;
     }
-
-    std::string pwd = getCustomPWD(filesystemPath); // Get the working directory.
+    std::string pwd = getCustomPWD(filesystemPath);
     size_t pos = 0;
     const std::string delimiter = "/";
-    std::vector<std::string> filenames; // Stores the randomized path components.
-    std::string keyPath = pwd; // Keeps track of the current path being processed for randomization.
+    std::vector<std::string> filenames;
+    std::string keyPath = pwd;
 
-    // Process each component of the path.
     while ((pos = path.find(delimiter)) != std::string::npos) {
         std::string name = path.substr(0, pos);
         if (name == ".") {
-            // Keep current directory references as is.
             filenames.push_back(name);
         } else if (name == "..") {
-            // Handle parent directory navigation.
             int lastOccurrence = keyPath.find_last_of('/');
             keyPath.erase(lastOccurrence, keyPath.length());
             filenames.push_back(name);
         } else {
-            // Randomize the name and update the keyPath.
             std::string randomized = FilenameRandomizer::GetRandomizedName(keyPath + "/" + name, filesystemPath);
             filenames.push_back(randomized);
             keyPath += "/" + randomized;
         }
-        path.erase(0, pos + delimiter.length()); // Prepare for the next iteration.
+        path.erase(0, pos + delimiter.length());
     }
 
-    // Process the final or only component.
     if (path == ".." || path == ".") {
         filenames.push_back(path);
     } else {
@@ -316,18 +310,15 @@ std::string getEncryptedFilePath(std::string path, std::string filesystemPath) {
         }
     }
 
-    // Construct the encrypted file path from the filenames vector.
     std::string encryptedFilePath;
     for (const auto& name : filenames) {
         encryptedFilePath += name + "/";
     }
 
-    // Remove trailing slash if necessary.
     if (!encryptedFilePath.empty() && encryptedFilePath.back() == '/') {
         encryptedFilePath.pop_back();
     }
-
     return encryptedFilePath;
 }
 
-#endif // USER_FEATURES_HELPERS_H
+#endif // FEATURES_HELPERS_H

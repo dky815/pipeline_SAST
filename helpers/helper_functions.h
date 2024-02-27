@@ -1,3 +1,7 @@
+/*
+* Helper functions needed across the code.
+*/
+
 #ifndef HELPER_FUNCTIONS_H
 #define HELPER_FUNCTIONS_H
 
@@ -17,12 +21,14 @@
 
 namespace fs = std::filesystem;
 
+/// Helper function to create a new directory
+/// \param path Path for creating dir
 bool createDirectory(const fs::path& path) {
-    std::error_code ec; // For error handling without exceptions
+    std::error_code ec;
     if (fs::create_directory(path, ec)) {
-        return true; // Directory created successfully
+        return true;
     } else {
-        if (ec) { // Check if error code is set
+        if (ec) {
             std::cerr << "Error creating directory: " << ec.message() << " (" << path << ")" << std::endl;
             return false;
         } else {
@@ -101,26 +107,25 @@ std::string getUsernameFromPath(const std::string& path) {
 }
 
 void createInitFsForUser(const std::string& username, const std::string& path) {
-    mode_t old_umask = umask(0); // to ensure the following modes get set
-    mode_t mode = 0700;
-
-    std::string encrypted_username = FilenameRandomizer::EncryptFilename("/filesystem/" + username, path);
-    std::string u_folder = path + "/filesystem/" + encrypted_username;
-    if (mkdir(u_folder.c_str(), mode) != 0) {
+    std::string encryptedUsername = FilenameRandomizer::EncryptFilename("/filesystem/" + username, path);
+    fs::path userDir = fs::path(path) / "filesystem" / encryptedUsername;
+    if (!createDirectory(userDir)) {
         std::cerr << "Error creating root folder for " << username << std::endl;
-    } else {
-        std::string encrypted_p_folder = FilenameRandomizer::EncryptFilename("/filesystem/" + encrypted_username + "/personal", path);
-        u_folder = path + "/filesystem/" + encrypted_username + "/" + encrypted_p_folder;
-        if (mkdir(u_folder.c_str(), mode) != 0) {
-            std::cerr << "Error creating personal folder for " << username << std::endl;
-        }
-        std::string encrypted_s_folder = FilenameRandomizer::EncryptFilename("/filesystem/" + encrypted_username + "/shared", path);
-        u_folder = path + "/filesystem/" + encrypted_username + "/" + encrypted_s_folder;
-        if (mkdir(u_folder.c_str(), mode) != 0) {
-            std::cerr << "Error creating shared folder for " << username << std::endl;
-        }
+        return;
     }
-    umask(old_umask); // Restore the original umask value
+    
+    std::string encryptedPersonalFolder = FilenameRandomizer::EncryptFilename("/filesystem/" + encryptedUsername + "/personal", path);
+    fs::path personalDir = userDir / encryptedPersonalFolder;
+    if (!createDirectory(personalDir)) {
+        std::cerr << "Error creating personal folder for " << username << std::endl;
+    }
+    
+    std::string encryptedSharedFolder = FilenameRandomizer::EncryptFilename("/filesystem/" + encryptedUsername + "/shared", path);
+    fs::path sharedDir = userDir / encryptedSharedFolder;
+    if (!createDirectory(sharedDir)) {
+        std::cerr << "Error creating shared folder for " << username << std::endl;
+    }
 }
+
 
 #endif // HELPER_FUNCTIONS_H
