@@ -1,2 +1,1 @@
-# secure-filesystem
-Building an encrypted fileserver for learnings on Secure System Design
+# CMPT 785 BIBIFI

@@ -1,44 +1,37 @@
-cmake_minimum_required(VERSION 3.22)
-project(fileserver)
+# Set the minimum version of CMake required
+cmake_minimum_required(VERSION 3.10)
 
+# Set your project name and version
+project(MyEncryptedFileSystem VERSION 1.0)
+#project(MyEncryptionTests VERSION 1.0)
+
+# Specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Modify this line based on your system installation path
-# set( OPENSSL_ROOT_DIR "/usr/local/opt/openssl@3")
+# Include OpenSSL into the project
 find_package(OpenSSL REQUIRED)
-if ( OPENSSL_FOUND )
-    message(STATUS "OpenSSL Found: ${OPENSSL_VERSION}")
-    message(STATUS "OpenSSL Include: ${OPENSSL_INCLUDE_DIR}")
-    message(STATUS "OpenSSL Libraries: ${OPENSSL_LIBRARIES}")
+include_directories(${OPENSSL_INCLUDE_DIR})
+
+# Define the executable
+add_executable(MyEncryptedFileSystem main.cpp)
+#add_executable(MyEncryptionTests encryption.cpp)
+
+# If your project has more .cpp files, add them to the executable
+# For example, if "user.cpp" or "encrypted_filesystem.cpp" implementations exist:
+# add_executable(MyEncryptedFileSystem main.cpp user.cpp encrypted_filesystem.cpp)
+
+# Include directories for header files, if they're in separate directories
+# include_directories(${CMAKE_SOURCE_DIR}/include)
+
+# Link against libraries if needed (e.g., OpenSSL)
+target_link_libraries(MyEncryptedFileSystem OpenSSL::SSL OpenSSL::Crypto)
+#target_link_libraries(MyEncryptionTests OpenSSL::SSL OpenSSL::Crypto)
+
+
+# If you use filesystem library and your compiler is gcc version less than 9, you might need to link stdc++fs
+# Check for compiler and add link library conditionally
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+    target_link_libraries(MyEncryptedFileSystem stdc++fs)
+    #target_link_libraries(MyEncryptionTests stdc++fs)
 endif()
-
-set(INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    encryption
-    features
-    helpers
-    authentication
-    )
-
-set(HEADERS
-    encryption/encryption.h
-    encryption/randomizer_function.h
-    
-    features/features.h
-    features/features_helpers.h
-    
-    helpers/helper_functions.h
-    helpers/json.hpp
-    
-    authentication/authentication.h
-    )
-
-add_executable(${PROJECT_NAME} main.cpp ${HEADERS})
-
-target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
-
-target_link_libraries(
-    ${PROJECT_NAME}
-        OpenSSL::SSL 
-        OpenSSL::Crypto
-    )
