@@ -72,3 +72,13 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: semgrep.sarif
+          
+  Coverity:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: vapier/coverity-scan-action@v1
+      with:
+        email: ${{ secrets.COVERITY_SCAN_EMAIL }}
+        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        command: 'mkdir build && cmake -S . -B build && cmake --build build/ --config Release'
