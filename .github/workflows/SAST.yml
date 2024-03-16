@@ -77,8 +77,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: config repo
+      run: cmake -B ${{github.workspace}}/build
     - uses: vapier/coverity-scan-action@v1
       with:
         email: ${{ secrets.COVERITY_SCAN_EMAIL }}
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
-        command: 'mkdir build && cmake -S . -B build && cmake --build build/ --config Release'
+        command: make -C ${{github.workspace}}/build
